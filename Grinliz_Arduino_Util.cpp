@@ -1,4 +1,4 @@
-#include "GrinlizUtil.h"
+#include "Grinliz_Arduino_Util.h"
 
 
 int hexToDec(char h) {
