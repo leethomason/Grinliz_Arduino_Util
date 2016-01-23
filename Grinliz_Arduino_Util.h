@@ -4,11 +4,19 @@
 #include <string.h>
 #include <stdint.h>
 
+template<bool> struct CompileTimeAssert;
+template<> struct CompileTimeAssert <true> {};
+#define STATIC_ASSERT(e) (CompileTimeAssert <(e) != 0>())
+
+//#define ASSERT(e) { if (!(e)) { Serial.print("ASSERT: "); Serial.print(__FILE__); Serial.print(" "); Serial.print(__LINE__); Serial.print(":"); Serial.println(#e); }}
+
 template< int ALLOCATE >
 class CStr
 {
 public:
-	CStr()							{	clear(); }
+	CStr()							{	
+		clear(); 
+	}
 	CStr( const char* src )			{	
 		clear();
 		append(src);
@@ -76,5 +84,15 @@ void writeNHex(char* str, const uint8_t* c, int n);
 // --- Range / Min / Max --- //
 template<class T>
 bool inRange(T a, T b, T c) { return a >= b && a <= c; }
+
+// --- Interupts --- //
+template<class T>
+T atomicRead(T* ptr) {
+  T ret;
+  do {
+	ret = *(volatile T*)ptr;
+  } while (ret != *(volatile T*)ptr);
+  return ret;
+}
 
 #endif // CSTR_INCLUDED
