@@ -10,6 +10,20 @@ template<> struct CompileTimeAssert <true> {};
 
 //#define ASSERT(e) { if (!(e)) { Serial.print("ASSERT: "); Serial.print(__FILE__); Serial.print(" "); Serial.print(__LINE__); Serial.print(":"); Serial.println(#e); }}
 
+/**
+  * Returns 'true' if 2 strings are equal.
+  * If one or both are null, they are never equal.
+  */
+inline bool strEqual(const char* a, const char* b) {
+  return a && b && strcmp(a, b) == 0;
+}
+
+
+/**
+  *	The CStr class is a "c string": a simple array of 
+  * char and an int size bound in a class. It allocates
+  * no memory, and is very efficient.
+  */
 template< int ALLOCATE >
 class CStr
 {
@@ -38,10 +52,10 @@ public:
 	int capacity() const				{ return ALLOCATE-1; }
 	void clear()						{ buf[0] = 0; len = 0; }
 
-	bool operator==( const char* str ) const						{ return str && strcmp( buf, str ) == 0; }
-	bool operator!=( const char* str ) const						{ return !(*this == str); }
+	bool operator==( const char* str ) const						{ return strEqual(buf, str); }
+	bool operator!=( const char* str ) const						{ return !strEqual(buf, str); }
 	char operator[]( int i ) const									{ return buf[i]; }
-	template < class T > bool operator==( const T& str ) const		{ return !str.empty() && strcmp( buf, str.buf ) == 0; }
+	template < class T > bool operator==( const T& str ) const		{ return strEqual(buf, str.buf); }
 
 	void operator=( const char* src )	{
 		clear();
@@ -71,14 +85,23 @@ private:
 	char buf[ALLOCATE];
 };
 
-inline bool strEqual(const char* a, const char* b) {
-  return a && b && strcmp(a, b) == 0;
-}
-
 // --- Hex / Dec Utility --- //
+/// Convert a char ('0'-'9', 'a'-'f', 'A'-'F') to the integer value.
 int hexToDec(char h);
+/// Convert an integer from 0-15 to the hex character. '0' - 'f'
 char decToHex(int v);
+
+/** 
+ * Convert a string in the form:
+ *   aabbcc or
+ *   abc
+ * To the decimal equivalents.
+ */
 void parseNHex(const char* str, uint8_t* c, int n);
+
+/** Write a string in the form aabbcc from decimal values.
+ *  'str' needs to be long enough for the output and the null terminator.
+ */
 void writeNHex(char* str, const uint8_t* c, int n);
 
 // --- Range / Min / Max --- //

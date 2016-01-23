@@ -40,4 +40,5 @@ void writeNHex(char* str, const uint8_t* c, int n) {
 		str[i*2+0] = decToHex(c[i] / 16);
 		str[i*2+1] = decToHex(c[i] & 15);
 	}
+  str[n*2] = 0;
 }
