@@ -108,6 +108,34 @@ void writeNHex(char* str, const uint8_t* c, int n);
 template<class T>
 bool inRange(T a, T b, T c) { return a >= b && a <= c; }
 
+// --- Algorithm --- //
+
+template <class T> inline void	Swap( T* a, T* b )	{ T temp; temp = *a; *a = *b; *b = temp; }
+
+template <class T>
+inline void Sort(T* mem, int size)
+{
+	int gap = size;
+	for (;;) {
+		gap = gap * 3 / 4;
+		if (gap == 0) gap = 1;
+
+		bool swapped = false;
+		const int end = size - gap;
+		for (int i = 0; i < end; i++) {
+			int j = i + gap;
+			if (mem[j] < mem[i]) ) {
+				Swap(mem+i, mem+j);
+				swapped = true;
+			}
+		}
+		if (gap == 1 && !swapped) {
+			break;
+		}
+	}
+}
+
+
 // --- Interupts --- //
 template<class T>
 T atomicRead(T* ptr) {
