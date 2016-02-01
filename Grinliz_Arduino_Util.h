@@ -56,6 +56,7 @@ public:
 	bool operator!=( const char* str ) const						{ return !strEqual(buf, str); }
 	char operator[]( int i ) const									{ return buf[i]; }
 	template < class T > bool operator==( const T& str ) const		{ return strEqual(buf, str.buf); }
+	bool operator<(const CStr<ALLOCATE>& str) const					{ return strcmp(buf, str.buf) < 0; }
 
 	void operator=( const char* src )	{
 		clear();
@@ -113,7 +114,7 @@ bool inRange(T a, T b, T c) { return a >= b && a <= c; }
 template <class T> inline void	Swap( T* a, T* b )	{ T temp; temp = *a; *a = *b; *b = temp; }
 
 template <class T>
-inline void Sort(T* mem, int size)
+inline void combSort(T* mem, int size)
 {
 	int gap = size;
 	for (;;) {
@@ -124,7 +125,7 @@ inline void Sort(T* mem, int size)
 		const int end = size - gap;
 		for (int i = 0; i < end; i++) {
 			int j = i + gap;
-			if (mem[j] < mem[i]) ) {
+			if (mem[j] < mem[i]) {
 				Swap(mem+i, mem+j);
 				swapped = true;
 			}
