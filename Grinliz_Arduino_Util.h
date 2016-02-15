@@ -18,6 +18,7 @@ inline bool strEqual(const char* a, const char* b) {
   return a && b && strcmp(a, b) == 0;
 }
 
+bool strStarts(const char* str, const char* prefix);
 
 /**
   *	The CStr class is a "c string": a simple array of 

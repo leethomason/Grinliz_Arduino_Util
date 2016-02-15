@@ -1,5 +1,16 @@
 #include "Grinliz_Arduino_Util.h"
 
+bool strStarts(const char* str, const char* prefix) 
+{
+  if (!str || !prefix)
+    return false;
+
+  while(*prefix) {
+    if (*prefix++ != *str++)
+      return false;
+  }
+  return true;
+}
 
 int hexToDec(char h) {
   if (h >= '0' && h <= '9') return h - '0';
