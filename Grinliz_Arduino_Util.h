@@ -18,6 +18,9 @@ inline bool strEqual(const char* a, const char* b) {
   return a && b && strcmp(a, b) == 0;
 }
 
+/**
+ * Returns 'true' if 'str' strarts with 'prefix'
+ */
 bool strStarts(const char* str, const char* prefix);
 
 /**
@@ -138,7 +141,7 @@ inline void combSort(T* mem, int size)
 }
 
 
-// --- Interupts --- //
+// --- Interupts & Time --- //
 template<class T>
 T atomicRead(T* ptr) {
   T ret;
@@ -147,5 +150,17 @@ T atomicRead(T* ptr) {
   } while (ret != *(volatile T*)ptr);
   return ret;
 }
+
+class Timer
+{
+public:
+	Timer() : time(0), trigger(1000) {}
+	Timer(uint32_t triggerTime) : time(0), trigger(triggerTime) {}
+
+	int16_t delta(uint32_t deltaTime);
+
+private:
+	uint32_t time, trigger;
+};
 
 #endif // CSTR_INCLUDED
