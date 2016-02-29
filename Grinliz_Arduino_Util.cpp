@@ -54,13 +54,18 @@ void writeNHex(char* str, const uint8_t* c, int n) {
   str[n*2] = 0;
 }
 
-int16_t Timer::delta(uint32_t deltaTime)
+int16_t Timer::tick()
 {
-  time += deltaTime;
   int16_t n = 0;
-  while(time >= trigger) {
-    n++;
-    time -= trigger;
+  if (time == 0) {
+    time = millis();  // start it up.
+  }
+  else {
+    uint32_t delta = millis() - time;
+    while(delta >= trigger) {
+      delta -= trigger;
+      n++;
+    }
   }
   return n;
 }

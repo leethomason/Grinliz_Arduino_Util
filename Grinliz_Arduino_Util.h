@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <Arduino.h>
 
 template<bool> struct CompileTimeAssert;
 template<> struct CompileTimeAssert <true> {};
@@ -157,7 +158,7 @@ public:
 	Timer() : time(0), trigger(1000) {}
 	Timer(uint32_t triggerTime) : time(0), trigger(triggerTime) {}
 
-	int16_t delta(uint32_t deltaTime);
+	int16_t tick();
 
 private:
 	uint32_t time, trigger;
