@@ -9,7 +9,11 @@ template<bool> struct CompileTimeAssert;
 template<> struct CompileTimeAssert <true> {};
 #define STATIC_ASSERT(e) (CompileTimeAssert <(e) != 0>())
 
-//#define ASSERT(e) { if (!(e)) { Serial.print("ASSERT: "); Serial.print(__FILE__); Serial.print(" "); Serial.print(__LINE__); Serial.print(":"); Serial.println(#e); }}
+#if SERIAL_DEBUG == 1
+# define ASSERT(x) if (!(x)) { Serial.print("ASSERT:"); Serial.print(#x); Serial.print(" "); Serial.print(__LINE__); Serial.print(" "); Serial.println(__FILE__); }
+#else
+# define ASSERT(x)
+#endif
 
 /**
   * Returns 'true' if 2 strings are equal.
