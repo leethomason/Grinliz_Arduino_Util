@@ -15,6 +15,32 @@ template<> struct CompileTimeAssert <true> {};
 # define ASSERT(x)
 #endif
 
+class LEDManager;
+typedef void (*BlinkHandler)(const LEDManager&);
+
+class LEDManager
+{
+public:
+	LEDManager(uint8_t pin);
+
+	void set(bool on);
+	void setHandler(BlinkHandler handler) { m_handler = handler; }
+
+	void blink(uint8_t n, uint32_t cycle);
+	void process();
+	int  numBlinks() const;
+	bool blinking() const { return m_nBlink > 0; }
+
+private:
+	uint8_t  m_pin = 0;
+	uint8_t  m_nBlink = 0;
+	bool 	 m_on = false;
+	uint32_t m_cycle = 0;
+	uint32_t m_startTime = 0;
+	BlinkHandler m_handler = 0;
+	uint8_t m_nCallbacks = 0;
+};
+
 /**
   * Returns 'true' if 2 strings are equal.
   * If one or both are null, they are never equal.

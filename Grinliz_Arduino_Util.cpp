@@ -1,5 +1,68 @@
 #include "Grinliz_Arduino_Util.h"
 
+LEDManager::LEDManager(uint8_t pin) 
+{
+  m_pin = pin;
+    pinMode(m_pin, OUTPUT);
+    digitalWrite(m_pin, HIGH);
+}
+
+
+void LEDManager::set(bool on) 
+{
+  m_on = on;
+    digitalWrite(m_pin, m_on ? HIGH : LOW );
+    m_nBlink = 0;
+}
+
+void LEDManager::blink(uint8_t n, uint32_t cycle)
+{
+  m_handler = 0;
+  m_nCallbacks = 0;
+  if (n == 0 || cycle == 0) {
+    m_nBlink = 0;
+    m_cycle = 1;
+    m_startTime = 0;
+  }
+  else {
+    m_nBlink = n;
+    m_cycle = cycle > 0 ? cycle : 1;
+    m_startTime = millis();
+  }
+}
+
+void LEDManager::process()
+{
+  if (m_nBlink) {
+    uint32_t n = (millis() - m_startTime) / m_cycle;
+    const uint32_t half = m_cycle / 2;
+    uint32_t p = (millis() - m_startTime) / half;
+
+    if (n > m_nBlink) {
+      m_nBlink = 0;
+        digitalWrite(m_pin, m_on ? HIGH : LOW );
+    }
+    else {
+        digitalWrite(m_pin, (p & 1) ? HIGH : LOW );
+    }
+
+    if (n >= m_nCallbacks) {
+      if (m_handler) {
+        m_handler(*this);
+      }
+      m_nCallbacks = n + 1;
+    }
+  }
+}
+
+int LEDManager::numBlinks() const
+{
+  if (m_startTime == 0) return 0;
+
+  uint32_t n = (millis() - m_startTime) / m_cycle;
+  return n + 1;
+}
+
 bool strStarts(const char* str, const char* prefix) 
 {
   if (!str || !prefix)
