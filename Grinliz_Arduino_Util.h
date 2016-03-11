@@ -21,24 +21,24 @@ typedef void (*BlinkHandler)(const LEDManager&);
 class LEDManager
 {
 public:
-	LEDManager(uint8_t pin);
+    LEDManager(uint8_t pin);
 
-	void set(bool on);
-	void setHandler(BlinkHandler handler) { m_handler = handler; }
-
-	void blink(uint8_t n, uint32_t cycle);
-	void process();
-	int  numBlinks() const;
-	bool blinking() const { return m_nBlink > 0; }
+    void set(bool on);
+    void blink(uint8_t n, uint32_t cycle, BlinkHandler handler = 0);
+    void process();
+    int  numBlinks() const;
+    bool blinking() const {
+        return m_nBlink > 0;
+    }
 
 private:
-	uint8_t  m_pin = 0;
-	uint8_t  m_nBlink = 0;
-	bool 	 m_on = false;
-	uint32_t m_cycle = 0;
-	uint32_t m_startTime = 0;
-	BlinkHandler m_handler = 0;
-	uint8_t m_nCallbacks = 0;
+    uint8_t  m_pin = 0;
+    uint8_t  m_nBlink = 0;
+    bool 	 m_on = false;
+    uint32_t m_cycle = 0;
+    uint32_t m_startTime = 0;
+    BlinkHandler m_handler = 0;
+    uint8_t m_nCallbacks = 0;
 };
 
 /**
@@ -46,7 +46,7 @@ private:
   * If one or both are null, they are never equal.
   */
 inline bool strEqual(const char* a, const char* b) {
-  return a && b && strcmp(a, b) == 0;
+    return a && b && strcmp(a, b) == 0;
 }
 
 /**
@@ -55,7 +55,7 @@ inline bool strEqual(const char* a, const char* b) {
 bool strStarts(const char* str, const char* prefix);
 
 /**
-  *	The CStr class is a "c string": a simple array of 
+  *	The CStr class is a "c string": a simple array of
   * char and an int size bound in a class. It allocates
   * no memory, and is very efficient.
   */
@@ -63,62 +63,85 @@ template< int ALLOCATE >
 class CStr
 {
 public:
-	CStr()							{	
-		clear(); 
-	}
-	CStr( const char* src )			{	
-		clear();
-		append(src);
-	}
+    CStr() {
+        clear();
+    }
+    CStr( const char* src )	{
+        clear();
+        append(src);
+    }
 
-	CStr( const CStr<ALLOCATE>& other ) {										
-		memcpy( buf, other.buf, ALLOCATE );
-		len = other.len;
-	}
+    CStr( const CStr<ALLOCATE>& other ) {
+        memcpy( buf, other.buf, ALLOCATE );
+        len = other.len;
+    }
 
-	~CStr()	{}
+    ~CStr()	{}
 
-	const char* c_str()	const			{ return buf; }
+    const char* c_str()	const	{
+        return buf;
+    }
 
-	int size() const					{ return len; }
-	bool empty() const					{ return buf[0] == 0; }
+    int size() const			{
+        return len;
+    }
+    bool empty() const			{
+        return buf[0] == 0;
+    }
 
-	int length() const 					{ return len; }
-	int capacity() const				{ return ALLOCATE-1; }
-	void clear()						{ buf[0] = 0; len = 0; }
+    int length() const 			{
+        return len;
+    }
+    int capacity() const		{
+        return ALLOCATE-1;
+    }
+    void clear()				{
+        buf[0] = 0;
+        len = 0;
+    }
 
-	bool operator==( const char* str ) const						{ return strEqual(buf, str); }
-	bool operator!=( const char* str ) const						{ return !strEqual(buf, str); }
-	char operator[]( int i ) const									{ return buf[i]; }
-	template < class T > bool operator==( const T& str ) const		{ return strEqual(buf, str.buf); }
-	bool operator<(const CStr<ALLOCATE>& str) const					{ return strcmp(buf, str.buf) < 0; }
+    bool operator==( const char* str ) const						{
+        return strEqual(buf, str);
+    }
+    bool operator!=( const char* str ) const						{
+        return !strEqual(buf, str);
+    }
+    char operator[]( int i ) const									{
+        return buf[i];
+    }
+    template < class T > bool operator==( const T& str ) const		{
+        return strEqual(buf, str.buf);
+    }
+    bool operator<(const CStr<ALLOCATE>& str) const					{
+        return strcmp(buf, str.buf) < 0;
+    }
 
-	void operator=( const char* src )	{
-		clear();
-		append(src);
-	}
-	
-	void operator+=( const char* src ) {
-		append(src);
-	}
+    void operator=( const char* src )	{
+        clear();
+        append(src);
+    }
 
-	void append(const char* src) {
-		for(const char* q = src; q && *q; ++q) {
-			append(*q);
-		}
-	}
+    void operator+=( const char* src ) {
+        append(src);
+    }
 
-	void append(char c) {
-		if (len < ALLOCATE-1) {
-			buf[len] = c;
-			++len;
-			buf[len] = 0;
-		}
-	}
+    void append(const char* src) {
+        for(const char* q = src; q && *q; ++q) {
+            append(*q);
+        }
+    }
+
+    void append(char c) {
+        if (len < ALLOCATE-1) {
+            buf[len] = c;
+            ++len;
+            buf[len] = 0;
+        }
+    }
 
 private:
-	int len;
-	char buf[ALLOCATE];
+    int len;
+    char buf[ALLOCATE];
 };
 
 // --- Hex / Dec Utility --- //
@@ -127,7 +150,7 @@ int hexToDec(char h);
 /// Convert an integer from 0-15 to the hex character. '0' - 'f'
 char decToHex(int v);
 
-/** 
+/**
  * Convert a string in the form:
  *   aabbcc or
  *   abc
@@ -142,57 +165,66 @@ void writeNHex(char* str, const uint8_t* c, int n);
 
 // --- Range / Min / Max --- //
 template<class T>
-bool inRange(T a, T b, T c) { return a >= b && a <= c; }
+bool inRange(T a, T b, T c) {
+    return a >= b && a <= c;
+}
 
 // --- Algorithm --- //
 
-template <class T> inline void	Swap( T* a, T* b )	{ T temp; temp = *a; *a = *b; *b = temp; }
+template <class T> inline void	Swap( T* a, T* b )	{
+    T temp;
+    temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
 template <class T>
 inline void combSort(T* mem, int size)
 {
-	int gap = size;
-	for (;;) {
-		gap = gap * 3 / 4;
-		if (gap == 0) gap = 1;
+    int gap = size;
+    for (;;) {
+        gap = gap * 3 / 4;
+        if (gap == 0) gap = 1;
 
-		bool swapped = false;
-		const int end = size - gap;
-		for (int i = 0; i < end; i++) {
-			int j = i + gap;
-			if (mem[j] < mem[i]) {
-				Swap(mem+i, mem+j);
-				swapped = true;
-			}
-		}
-		if (gap == 1 && !swapped) {
-			break;
-		}
-	}
+        bool swapped = false;
+        const int end = size - gap;
+        for (int i = 0; i < end; i++) {
+            int j = i + gap;
+            if (mem[j] < mem[i]) {
+                Swap(mem+i, mem+j);
+                swapped = true;
+            }
+        }
+        if (gap == 1 && !swapped) {
+            break;
+        }
+    }
 }
 
 
 // --- Interupts & Time --- //
 template<class T>
 T atomicRead(T* ptr) {
-  T ret;
-  do {
-	ret = *(volatile T*)ptr;
-  } while (ret != *(volatile T*)ptr);
-  return ret;
+    T ret;
+    do {
+        ret = *(volatile T*)ptr;
+    } while (ret != *(volatile T*)ptr);
+    return ret;
 }
 
 class Timer
 {
 public:
-	Timer() : time(0), trigger(1000) {}
-	Timer(uint32_t triggerTime) : time(0), trigger(triggerTime) {}
+    Timer() : time(0), trigger(1000) {}
+    Timer(uint32_t triggerTime) : time(0), trigger(triggerTime) {}
 
-	bool tick();
-	uint32_t period() const { return trigger; }
+    bool tick();
+    uint32_t period() const {
+        return trigger;
+    }
 
 private:
-	uint32_t time, trigger;
+    uint32_t time, trigger;
 };
 
 #endif // CSTR_INCLUDED
