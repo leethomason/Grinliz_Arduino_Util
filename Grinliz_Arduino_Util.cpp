@@ -1,10 +1,11 @@
 #include "Grinliz_Arduino_Util.h"
 
-LEDManager::LEDManager(uint8_t pin)
+LEDManager::LEDManager(uint8_t pin, bool on)
 {
     m_pin = pin;
+    m_on = on;
+    digitalWrite(m_pin, m_on ? HIGH : LOW);
     pinMode(m_pin, OUTPUT);
-    digitalWrite(m_pin, HIGH);
 }
 
 

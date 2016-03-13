@@ -21,7 +21,7 @@ typedef void (*BlinkHandler)(const LEDManager&);
 class LEDManager
 {
 public:
-    LEDManager(uint8_t pin);
+    LEDManager(uint8_t pin, bool on=true);
 
     void set(bool on);
     void blink(uint8_t n, uint32_t cycle, BlinkHandler handler = 0);
