@@ -1,4 +1,5 @@
 #include "Grinliz_Arduino_Util.h"
+#include <Arduino.h>
 
 LEDManager::LEDManager(uint8_t pin, bool on)
 {
@@ -42,18 +43,22 @@ void LEDManager::process()
         uint32_t p = (millis() - m_startTime) / half;
 
         if (n > m_nBlink) {
+            Serial.println("LED done");            
             m_nBlink = 0;
             digitalWrite(m_pin, m_on ? HIGH : LOW );
         }
         else {
-            digitalWrite(m_pin, (p & 1) ? HIGH : LOW );
+            digitalWrite(m_pin, (p & 1) ? LOW : HIGH );
         }
 
         if (n >= m_nCallbacks) {
+            Serial.print(" m_nBlink "); Serial.println(m_nBlink);
             if (m_handler) {
                 m_handler(*this);
             }
             m_nCallbacks = n + 1;
+            Serial.print("LED callback. m_nCallbacks "); Serial.print(m_nCallbacks); Serial.print(" n "); Serial.println(n);
+            Serial.print("half "); Serial.print(half); Serial.print(" m_nBlink "); Serial.println(m_nBlink);
         }
     }
 }
