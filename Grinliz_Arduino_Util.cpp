@@ -48,7 +48,7 @@ void LEDManager::process()
             digitalWrite(m_pin, m_on ? HIGH : LOW );
         }
         else {
-            digitalWrite(m_pin, (p & 1) ? LOW : HIGH );
+            digitalWrite(m_pin, ((p & 1) == m_bias) ? LOW : HIGH );
         }
 
         if (n >= m_nCallbacks) {

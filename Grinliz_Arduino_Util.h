@@ -21,10 +21,14 @@ typedef void (*BlinkHandler)(const LEDManager&);
 class LEDManager
 {
 public:
+	enum {
+		BLINK_LEADING,
+		BLINK_TRAILING
+	};
     LEDManager(uint8_t pin, bool on=true);
 
     void set(bool on);
-    void blink(uint8_t n, uint32_t cycle, BlinkHandler handler = 0);
+    void blink(uint8_t n, uint32_t cycle, BlinkHandler handler = 0, uint8_t leadOrTrail);
     void process();
     int  numBlinks() const;
     bool blinking() const {
@@ -35,6 +39,7 @@ private:
     uint8_t  m_pin = 0;
     uint8_t  m_nBlink = 0;
     bool 	 m_on = false;
+    uint8_t  m_bias = BLINK_LEADING;
     uint32_t m_cycle = 0;
     uint32_t m_startTime = 0;
     BlinkHandler m_handler = 0;
