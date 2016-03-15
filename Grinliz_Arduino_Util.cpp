@@ -1,6 +1,8 @@
 #include "Grinliz_Arduino_Util.h"
 #include <Arduino.h>
 
+SPClass SPrint;
+
 LEDManager::LEDManager(uint8_t pin, bool on)
 {
     m_pin = pin;
@@ -17,10 +19,13 @@ void LEDManager::set(bool on)
     m_nBlink = 0;
 }
 
-void LEDManager::blink(uint8_t n, uint32_t cycle, BlinkHandler h)
+void LEDManager::blink(uint8_t n, uint32_t cycle, BlinkHandler h, uint8_t bias)
 {
+    SPrint.p("blink n=").p(n).p(" cycle=").p(cycle).eol();
+
     m_handler = 0;
     m_nCallbacks = 0;
+    m_bias = bias;
     if (n == 0 || cycle == 0) {
         m_nBlink = 0;
         m_cycle = 1;
@@ -42,23 +47,20 @@ void LEDManager::process()
         const uint32_t half = m_cycle / 2;
         uint32_t p = (millis() - m_startTime) / half;
 
-        if (n > m_nBlink) {
-            Serial.println("LED done");            
+        if (n >= m_nBlink) {
             m_nBlink = 0;
             digitalWrite(m_pin, m_on ? HIGH : LOW );
         }
         else {
             digitalWrite(m_pin, ((p & 1) == m_bias) ? LOW : HIGH );
-        }
 
-        if (n >= m_nCallbacks) {
-            Serial.print(" m_nBlink "); Serial.println(m_nBlink);
-            if (m_handler) {
-                m_handler(*this);
+            if (n >= m_nCallbacks) {
+                if (m_handler) {
+                    m_handler(*this);
+                }
+                m_nCallbacks = n + 1;
+                SPrint.p("LED callback. m_nCallbacks=").p(m_nCallbacks).p(" n=").p(n).eol();
             }
-            m_nCallbacks = n + 1;
-            Serial.print("LED callback. m_nCallbacks "); Serial.print(m_nCallbacks); Serial.print(" n "); Serial.println(n);
-            Serial.print("half "); Serial.print(half); Serial.print(" m_nBlink "); Serial.println(m_nBlink);
         }
     }
 }

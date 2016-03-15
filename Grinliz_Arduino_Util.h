@@ -22,13 +22,13 @@ class LEDManager
 {
 public:
 	enum {
+		BLINK_TRAILING,
 		BLINK_LEADING,
-		BLINK_TRAILING
 	};
     LEDManager(uint8_t pin, bool on=true);
 
     void set(bool on);
-    void blink(uint8_t n, uint32_t cycle, BlinkHandler handler = 0, uint8_t leadOrTrail);
+    void blink(uint8_t n, uint32_t cycle, BlinkHandler handler = 0, uint8_t leadOrTrail = BLINK_LEADING);
     void process();
     int  numBlinks() const;
     bool blinking() const {
@@ -231,5 +231,21 @@ public:
 private:
     uint32_t time, trigger;
 };
+
+class SPClass
+{
+public:
+	const SPClass& p(const char v[]) const 					{ Serial.print(v); return *this; }
+    const SPClass& p(char v) const							{ Serial.print(v); return *this; }
+    const SPClass& p(unsigned char v, int p = DEC) const	{ Serial.print(v, p); return *this; }
+    const SPClass& p(int v, int p = DEC) const				{ Serial.print(v, p); return *this; }
+    const SPClass& p(unsigned int v, int p = DEC) const		{ Serial.print(v, p); return *this; }
+    const SPClass& p(long v, int p = DEC) const				{ Serial.print(v, p); return *this; }
+    const SPClass& p(unsigned long v, int p = DEC) const	{ Serial.print(v, p); return *this; }
+    const SPClass& p(double v, int p = 2) const				{ Serial.print(v, p); return *this; }
+    void eol() const 											{ Serial.println(""); }
+};
+
+extern SPClass SPrint;
 
 #endif // CSTR_INCLUDED
