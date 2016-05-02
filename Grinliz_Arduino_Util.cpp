@@ -21,7 +21,7 @@ void LEDManager::set(bool on)
 
 void LEDManager::blink(uint8_t n, uint32_t cycle, BlinkHandler h, uint8_t bias)
 {
-    SPrint.p("blink n=").p(n).p(" cycle=").p(cycle).eol();
+    //SPrint.p("blink n=").p(n).p(" cycle=").p(cycle).eol();
 
     m_handler = 0;
     m_nCallbacks = 0;
@@ -59,7 +59,7 @@ void LEDManager::process()
                     m_handler(*this);
                 }
                 m_nCallbacks = n + 1;
-                SPrint.p("LED callback. m_nCallbacks=").p(m_nCallbacks).p(" n=").p(n).eol();
+                //SPrint.p("LED callback. m_nCallbacks=").p(m_nCallbacks).p(" n=").p(n).eol();
             }
         }
     }
@@ -83,6 +83,17 @@ bool strStarts(const char* str, const char* prefix)
             return false;
     }
     return true;
+}
+
+void strBufCpy(char* target, int targetBufSize, const char* src)
+{
+    if (!target || !src) return;
+
+    int i = 0;
+    for(; (i < targetBufSize - 1) && src[i]; ++i) {
+      target[i] = src[i];
+    }
+    target[i] = 0;
 }
 
 int hexToDec(char h) 
@@ -145,3 +156,127 @@ bool Timer::tick()
     }
     return false;
 }
+
+
+void SPLog::attachSerial(Stream* stream) 
+{
+    serialStream = stream;
+}
+
+void SPLog::attachLog(Stream* stream)
+{
+    logStream = stream;
+}
+
+const SPLog& SPLog::p(const char v[]) const
+{
+  if (serialStream)
+      serialStream->print(v);
+  if (logStream)
+      logStream->print(v);
+  return *this;  
+}
+ 
+const SPLog& SPLog::p(char v) const
+{
+  if (serialStream)
+      serialStream->print(v);
+  if (logStream)
+      logStream->print(v);
+  return *this;  
+}
+
+const SPLog& SPLog::p(unsigned char v, int p) const
+{
+  if (serialStream)
+      serialStream->print(v, p);
+  if (logStream)
+      logStream->print(v, p);
+  return *this;  
+}
+
+const SPLog& SPLog::p(int v, int p) const
+{
+  if (serialStream)
+      serialStream->print(v, p);
+  if (logStream)
+      logStream->print(v, p);
+  return *this;  
+}
+
+const SPLog& SPLog::p(unsigned int v, int p) const
+{
+  if (serialStream)
+      serialStream->print(v, p);
+  if (logStream)
+      logStream->print(v, p);
+  return *this;  
+}
+
+const SPLog& SPLog::p(long v, int p) const
+{
+  if (serialStream)
+      serialStream->print(v, p);
+  if (logStream)
+      logStream->print(v, p);
+  return *this;  
+}
+
+const SPLog& SPLog::p(unsigned long v, int p) const
+{
+  if (serialStream)
+      serialStream->print(v, p);
+  if (logStream)
+      logStream->print(v, p);
+  return *this;  
+}
+
+const SPLog& SPLog::p(double v, int p) const
+{
+  if (serialStream)
+      serialStream->print(v, p);
+  if (logStream)
+      logStream->print(v, p);
+  return *this;  
+}
+
+void SPLog::eol() const
+{
+  if (serialStream)
+      serialStream->println("");
+  if (logStream) {
+      logStream->println("");
+      logStream->flush();
+    }
+}
+
+void SPLog::event(const char* e, const char* d)
+{
+  eventCache = e;
+  eventStacked = true;
+
+  dataCache.clear();
+  if (d) {
+    dataCache = d;
+    p(eventCache.c_str()).p(" ").p(dataCache.c_str()).eol();
+  }
+  else {
+    p(eventCache.c_str()).eol();
+  }
+}
+
+const char* SPLog::popEvent(const char** d)
+{
+  if (d)
+    *d = 0;
+  if (eventStacked) {
+    eventStacked = false;    
+    if (d) {
+      *d = dataCache.c_str();
+    }
+    return eventCache.c_str();
+  }
+  return 0;
+}
+
+SPLog Log;

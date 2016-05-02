@@ -9,12 +9,6 @@ template<bool> struct CompileTimeAssert;
 template<> struct CompileTimeAssert <true> {};
 #define STATIC_ASSERT(e) (CompileTimeAssert <(e) != 0>())
 
-#if SERIAL_DEBUG == 1
-# define ASSERT(x) if (!(x)) { Serial.print("ASSERT:"); Serial.print(#x); Serial.print(" "); Serial.print(__LINE__); Serial.print(" "); Serial.println(__FILE__); }
-#else
-# define ASSERT(x)
-#endif
-
 class LEDManager;
 typedef void (*BlinkHandler)(const LEDManager&);
 
@@ -58,6 +52,8 @@ inline bool strEqual(const char* a, const char* b) {
  * Returns 'true' if 'str' strarts with 'prefix'
  */
 bool strStarts(const char* str, const char* prefix);
+
+void strBufCpy(char* target, int targetBufSize, const char* src);
 
 /**
   *	The CStr class is a "c string": a simple array of
@@ -235,17 +231,48 @@ private:
 class SPClass
 {
 public:
-	const SPClass& p(const char v[]) const 					{ Serial.print(v); return *this; }
-    const SPClass& p(char v) const							{ Serial.print(v); return *this; }
+	const SPClass& p(const char v[]) const 					{ Serial.print(v);    return *this; }
+    const SPClass& p(char v) const							{ Serial.print(v);    return *this; }
     const SPClass& p(unsigned char v, int p = DEC) const	{ Serial.print(v, p); return *this; }
     const SPClass& p(int v, int p = DEC) const				{ Serial.print(v, p); return *this; }
     const SPClass& p(unsigned int v, int p = DEC) const		{ Serial.print(v, p); return *this; }
     const SPClass& p(long v, int p = DEC) const				{ Serial.print(v, p); return *this; }
     const SPClass& p(unsigned long v, int p = DEC) const	{ Serial.print(v, p); return *this; }
     const SPClass& p(double v, int p = 2) const				{ Serial.print(v, p); return *this; }
-    void eol() const 											{ Serial.println(""); }
+    void eol() const 										{ Serial.println(""); }
 };
 
 extern SPClass SPrint;
+
+class SPLog
+{
+public:
+	void attachSerial(Stream* stream);
+	void attachLog(Stream* stream);
+
+	const SPLog& p(const char v[]) const;
+    const SPLog& p(char v) const;
+    const SPLog& p(unsigned char v, int p = DEC) const;
+    const SPLog& p(int v, int p = DEC) const;
+    const SPLog& p(unsigned int v, int p = DEC) const;
+    const SPLog& p(long v, int p = DEC) const;
+    const SPLog& p(unsigned long v, int p = DEC) const;
+    const SPLog& p(double v, int p = 2) const;
+    void eol() const;
+
+    void event(const char* event, const char* data = 0);
+    const char* popEvent(const char** data = 0);
+
+private:
+	Stream* serialStream = 0;
+	Stream* logStream = 0;  
+	bool eventStacked = false;
+	CStr<40> eventCache;
+	CStr<40> dataCache;
+};
+
+extern SPLog Log;
+
+#define ASSERT(x) if (!(x)) { Log.p("ASSERT: ").p(#x).p(" ").p(__FILE__).p(" ").p(__LINE__).eol(); }
 
 #endif // CSTR_INCLUDED
