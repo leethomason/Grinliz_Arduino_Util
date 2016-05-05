@@ -202,6 +202,30 @@ inline void combSort(T* mem, int size)
     }
 }
 
+class Random
+{
+public:
+	Random() : s0(1234), s1(5678)	{}
+	void setSeed(uint32_t s) {
+		s0 = s;
+		s1 = s + 5678;
+	}
+
+	uint32_t rand16() {
+		s0 = (s0 * 10103) & 0xffff;
+		s1 = (s1 *  1103) & 0xffff;
+		return s0 ^ s1;
+	}
+
+	uint32_t rand16(uint32_t limit) {
+		return rand16() % limit;
+	}
+
+private:
+	uint32_t s0;
+	uint32_t s1;
+};
+
 
 // --- Interupts & Time --- //
 template<class T>
@@ -260,8 +284,11 @@ public:
     const SPLog& p(double v, int p = 2) const;
     void eol() const;
 
-    void event(const char* event, const char* data = 0);
-    const char* popEvent(const char** data = 0);
+    void event(const char* event);
+    void event(const char* event, const char* data);
+    void event(const char* event, int data);
+
+    const char* popEvent(const char** data = 0, int* dataI = 0);
 
 private:
 	Stream* serialStream = 0;
@@ -269,6 +296,7 @@ private:
 	bool eventStacked = false;
 	CStr<40> eventCache;
 	CStr<40> dataCache;
+	int dataI;
 };
 
 extern SPLog Log;

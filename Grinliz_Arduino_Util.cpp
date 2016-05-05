@@ -250,29 +250,52 @@ void SPLog::eol() const
     }
 }
 
-void SPLog::event(const char* e, const char* d)
+void SPLog::event(const char* e)
 {
+  ASSERT(e);
   eventCache = e;
   eventStacked = true;
+  dataI = 0;
 
   dataCache.clear();
-  if (d) {
-    dataCache = d;
-    p(eventCache.c_str()).p(" ").p(dataCache.c_str()).eol();
-  }
-  else {
-    p(eventCache.c_str()).eol();
-  }
+  p(eventCache.c_str()).eol();
 }
 
-const char* SPLog::popEvent(const char** d)
+void SPLog::event(const char* e, const char* d)
+{
+  ASSERT(e);
+  ASSERT(d);
+  eventCache = e;
+  eventStacked = true;
+  dataCache = d;
+  dataI = 0;
+  p(eventCache.c_str()).p(" ").p(dataCache.c_str()).eol();
+}
+
+void SPLog::event(const char* e, int d)
+{
+  ASSERT(e);
+  eventCache = e;
+  eventStacked = true;
+  dataCache.clear();
+  dataI = d;
+  p(eventCache.c_str()).p(" ").p(dataI).eol();
+}
+
+const char* SPLog::popEvent(const char** d, int* di)
 {
   if (d)
     *d = 0;
+  if (di)
+    *di = 0;
+
   if (eventStacked) {
     eventStacked = false;    
     if (d) {
       *d = dataCache.c_str();
+    }
+    if (di) {
+      *di = dataI;
     }
     return eventCache.c_str();
   }
