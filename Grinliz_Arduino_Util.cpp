@@ -1,5 +1,6 @@
 #include "Grinliz_Arduino_Util.h"
 #include <Arduino.h>
+#include <SPI.h>
 
 SPClass SPrint;
 
@@ -303,3 +304,14 @@ const char* SPLog::popEvent(const char** d, int* di)
 }
 
 SPLog Log;
+
+SPITransaction::SPITransaction(uint8_t cs, const SPISettings& settings) {
+    SPI.beginTransaction(settings);
+    digitalWrite(cs, LOW);
+    this->cs = cs;
+}
+
+SPITransaction::~SPITransaction() {
+    digitalWrite(cs, HIGH);
+    SPI.endTransaction();
+}

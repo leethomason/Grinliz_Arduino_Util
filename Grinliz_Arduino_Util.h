@@ -8,6 +8,7 @@
 template<bool> struct CompileTimeAssert;
 template<> struct CompileTimeAssert <true> {};
 #define STATIC_ASSERT(e) (CompileTimeAssert <(e) != 0>())
+class SPISettings;
 
 class LEDManager;
 typedef void (*BlinkHandler)(const LEDManager&);
@@ -250,6 +251,16 @@ public:
 
 private:
     uint32_t time, trigger;
+};
+
+class SPITransaction
+{
+public:
+    SPITransaction(uint8_t cs, const SPISettings& settings);
+    ~SPITransaction();
+
+private:
+    uint8_t cs;
 };
 
 class SPClass
