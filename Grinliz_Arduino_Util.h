@@ -54,8 +54,6 @@ inline bool strEqual(const char* a, const char* b) {
  */
 bool strStarts(const char* str, const char* prefix);
 
-void strBufCpy(char* target, int targetBufSize, const char* src);
-
 /**
   *	The CStr class is a "c string": a simple array of
   * char and an int size bound in a class. It allocates
@@ -89,10 +87,6 @@ public:
     }
     bool empty() const			{
         return buf[0] == 0;
-    }
-
-    int length() const 			{
-        return len;
     }
     int capacity() const		{
         return ALLOCATE-1;
@@ -146,24 +140,28 @@ private:
     char buf[ALLOCATE];
 };
 
+bool TestCStr();
+
 // --- Hex / Dec Utility --- //
 /// Convert a char ('0'-'9', 'a'-'f', 'A'-'F') to the integer value.
 int hexToDec(char h);
 /// Convert an integer from 0-15 to the hex character. '0' - 'f'
 char decToHex(int v);
 
-/**
- * Convert a string in the form:
- *   aabbcc or
- *   abc
- * To the decimal equivalents.
- */
-void parseNHex(const char* str, uint8_t* c, int n);
+bool TestHexDec();
 
-/** Write a string in the form aabbcc from decimal values.
- *  'str' needs to be long enough for the output and the null terminator.
+/**
+ * Convert a string in the form: aabbcc to decimal.
  */
-void writeNHex(char* str, const uint8_t* c, int n);
+void parseHex(const CStr<7>& str, uint8_t* color3);
+void parseHex(const CStr<4>& str, uint8_t* color3);
+
+/** 
+ *  Convert a numbers to a CStr.
+ */
+void writeHex(const uint8_t* color3, CStr<6>* str);
+
+bool TestHex();
 
 // --- Range / Min / Max --- //
 template<class T>
@@ -228,6 +226,7 @@ private:
 };
 
 // --- Interupts & Time --- //
+/*
 template<class T>
 T atomicRead(T* ptr) {
     T ret;
@@ -236,6 +235,7 @@ T atomicRead(T* ptr) {
     } while (ret != *(volatile T*)ptr);
     return ret;
 }
+*/
 
 class Timer
 {
@@ -298,18 +298,21 @@ public:
     void event(const char* event, const char* data);
     void event(const char* event, int data);
 
-    const char* popEvent(const char** data = 0, int* dataI = 0);
+    const char* popEvent(const char** name, const char** data = 0, int* dataI = 0);
+    bool hasEvent() const { return _hasEvent; }
 
 private:
 	Stream* serialStream = 0;
 	Stream* logStream = 0;  
-	bool eventStacked = false;
-	CStr<40> eventCache;
-	CStr<40> dataCache;
-	int dataI;
+
+    bool     _hasEvent = false;
+	CStr<40> eventName;
+	CStr<40> eventStrData;
+	int      eventIData;
 };
 
 extern SPLog Log;
+bool TestEvent();
 
 #define ASSERT(x) if (!(x)) { Log.p("ASSERT: ").p(#x).p(" ").p(__FILE__).p(" ").p(__LINE__).eol(); }
 
