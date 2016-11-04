@@ -3,7 +3,7 @@
 #include <SPI.h>
 
 #define TEST_IS_TRUE(x) {         \
-    if(x) {                       \
+    if((x)) {                     \
     }                             \
     else {                        \
         ASSERT(false);            \
@@ -20,6 +20,14 @@
     }                             \
 }
 
+#define TEST_IS_EQ(x, y) {        \
+    if((x) == (y)) {              \
+    }                             \
+    else {                        \
+        ASSERT(false);            \
+        return false;             \
+    }                             \
+}
 
 SPClass SPrint;
 
@@ -137,10 +145,10 @@ bool TestCStr()
         TEST_IS_TRUE(s[0] == 'F');
 
         CStr<9> s2 = s;
-        TEST_IS_TRUE(s == s2);
+        TEST_IS_TRUE(s == s2.c_str());
         s.clear();
         TEST_IS_TRUE(s.empty());
-        TEST_IS_TRUE(s != s2);
+        TEST_IS_TRUE(s != s2.c_str());
     }
     {
         CStr<9> s = STR9;
@@ -183,7 +191,7 @@ bool TestHexDec()
     TEST_IS_TRUE(hexToDec('A') == 10);
     TEST_IS_TRUE(hexToDec('F') == 15);
     TEST_IS_TRUE(hexToDec('a') == 10);
-    TEST_IS_TRUE(hexToDec('a') == 15);
+    TEST_IS_TRUE(hexToDec('f') == 15);
     TEST_IS_TRUE(hexToDec('0') == 0);
     TEST_IS_TRUE(hexToDec('9') == 9);
     TEST_IS_TRUE(hexToDec('G') == 0);
@@ -392,18 +400,19 @@ void SPLog::event(const char* e, int d)
   p(eventName.c_str()).p(" ").p(eventIData).eol();
 }
 
-const char* SPLog::popEvent(const char** d, int* di)
+const char* SPLog::popEvent(const char** n, const char** d, int* di)
 {
     if (_hasEvent) {
       _hasEvent = false;
-      if (d) {
+      if (n) 
+          *n = eventName.c_str();
+      if (d)
           *d = eventStrData.c_str();
-      }
-      if (di) {
+      if (di)
           *di = eventIData;
-      }
       return eventName.c_str();
     }
+    if (n) *n = 0;
     if (d) *d = 0;
     if (di) *di = 0;
     return 0;
@@ -417,15 +426,27 @@ bool TestEvent()
     const char* data = 0;
     int iData = 0;
 
-    TEST_IS_FALSE(Log._hasEvent());
+    const char* savedName = 0;
+    const char* savedData = 0;
+
+    if (Log.hasEvent()) {
+        Log.popEvent(&savedName, &savedData, 0);
+    }
+
+    TEST_IS_FALSE(Log.hasEvent());
 
     Log.event("foo");
     Log.popEvent(&name, &data, &iData);
     TEST_IS_TRUE(strEqual(name, "foo"));
-    TEST_IS_TRUE(data == 0);
-    TEST_IS_TRUE(iData = 0);
-    TEST_IS_FALSE(Log._hasEvent);
+    TEST_IS_TRUE(*data == 0);
+    TEST_IS_TRUE(iData == 0);
+    TEST_IS_FALSE(Log.hasEvent());
 
+    //if (savedName) {
+    //    Log.event(savedName, savedData);
+    //}
+
+    return true;
 }
 
 
